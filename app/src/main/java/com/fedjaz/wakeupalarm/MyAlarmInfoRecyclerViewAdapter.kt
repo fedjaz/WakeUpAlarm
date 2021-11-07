@@ -8,8 +8,6 @@ import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.widget.SwitchCompat
 
-import com.fedjaz.wakeupalarm.dummy.DummyContent.DummyItem
-import com.google.android.material.switchmaterial.SwitchMaterial
 
 class MyAlarmInfoRecyclerViewAdapter(
     private val values: List<Alarm>
