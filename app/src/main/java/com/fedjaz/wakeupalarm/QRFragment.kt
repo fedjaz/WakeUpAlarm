@@ -9,12 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-/**
- * A fragment representing a list of Items.
- */
-class AlarmInfoFragment(var alarms: ArrayList<Alarm>) : Fragment() {
+
+class QRFragment(var QRs: ArrayList<QR>) : Fragment() {
 
     private var columnCount = 1
+
+    var onItemClick: ((Int, QR) -> Unit)? = null
+
+    var adapter: QRRecyclerViewAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,11 +26,9 @@ class AlarmInfoFragment(var alarms: ArrayList<Alarm>) : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_item_list, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.fragment_item_list2, container, false)
 
         // Set the adapter
         if (view is RecyclerView) {
@@ -37,7 +37,11 @@ class AlarmInfoFragment(var alarms: ArrayList<Alarm>) : Fragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                adapter = AlarmRecyclerViewAdapter(alarms)
+                adapter = QRRecyclerViewAdapter(QRs)
+                this.adapter = adapter as QRRecyclerViewAdapter
+                (adapter as QRRecyclerViewAdapter).onItemClick = { position, QR ->
+                    onItemClick?.invoke(position, QR)
+                }
             }
         }
         return view
@@ -50,11 +54,11 @@ class AlarmInfoFragment(var alarms: ArrayList<Alarm>) : Fragment() {
 
         // TODO: Customize parameter initialization
         @JvmStatic
-        fun newInstance(columnCount: Int, alarms: ArrayList<Alarm>) =
-            AlarmInfoFragment(alarms).apply {
-                arguments = Bundle().apply {
-                    putInt(ARG_COLUMN_COUNT, columnCount)
+        fun newInstance(columnCount: Int, QRs: ArrayList<QR>) =
+                QRFragment(QRs).apply {
+                    arguments = Bundle().apply {
+                        putInt(ARG_COLUMN_COUNT, columnCount)
+                    }
                 }
-            }
     }
 }

@@ -4,14 +4,13 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.widget.SwitchCompat
 
 
-class MyAlarmInfoRecyclerViewAdapter(
+class AlarmRecyclerViewAdapter(
     private val values: List<Alarm>
-) : RecyclerView.Adapter<MyAlarmInfoRecyclerViewAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<AlarmRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)

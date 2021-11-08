@@ -10,6 +10,7 @@
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="80dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.google.android.material.appbar.AppBarLayout
@@ -40,5 +41,15 @@
                 android:icon="@mipmap/qr_foreground" />
         </com.google.android.material.tabs.TabLayout>
     </com.google.android.material.appbar.AppBarLayout>
+
+    <ImageButton
+        android:id="@+id/addButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/add_button_background"
+        android:elevation="10dp"
+        android:src="@mipmap/plus_foreground" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

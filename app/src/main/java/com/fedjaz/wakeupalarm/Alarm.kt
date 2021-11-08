@@ -2,7 +2,7 @@ package com.fedjaz.wakeupalarm
 
 import java.sql.Time
 
-class Alarm(var hour: Int = 0, var minute: Int = 0, var enabled: Boolean = false, var days: ArrayList<Boolean>) {
+class Alarm(var id: Int = 0, var hour: Int = 0, var minute: Int = 0, var enabled: Boolean = false, var days: ArrayList<Boolean>) {
     private val daysPattern = listOf("Mo", "Tu", "We", "Th", "Fr", "Sa", "Su")
 
     val isOneTime: Boolean
