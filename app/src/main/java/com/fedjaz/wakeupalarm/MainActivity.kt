@@ -1,20 +1,17 @@
 package com.fedjaz.wakeupalarm
 
-import android.graphics.ColorFilter
+import android.content.Intent
 import android.graphics.PorterDuff
-import android.opengl.Visibility
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Log
-import android.widget.Button
+import android.view.View.*
 import android.widget.ImageButton
-import android.widget.TableLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
-import android.view.View.*
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private val selectedQrs = mutableListOf<Int>()
@@ -24,28 +21,28 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val alarms = arrayListOf(
-            Alarm(1, 7, 30, true,
-                arrayListOf(true, true, true, true, true, false, false)),
-            Alarm(2, 10, 0, true,
-                arrayListOf(true, true, true, true, true, true, true)),
-            Alarm(3, 18, 5, true,
-                arrayListOf(false, true, false, false, false, true, true)),
-            Alarm(4, 18, 5, true,
-                arrayListOf(false, false, false, false, false, false, false)),
+                Alarm(1, 7, 30, true,
+                        arrayListOf(true, true, true, true, true, false, false)),
+                Alarm(2, 10, 0, true,
+                        arrayListOf(true, true, true, true, true, true, true)),
+                Alarm(3, 18, 5, true,
+                        arrayListOf(false, true, false, false, false, true, true)),
+                Alarm(4, 18, 5, true,
+                        arrayListOf(false, false, false, false, false, false, false)),
         )
 
         val qrs = arrayListOf(
-            QR(1, "Bathroom", 1, "home"),
-            QR(2, "Kitchen", 1, "home"),
-            QR(3, "Computer", 1, "work"),
-            QR(4, "Computer", 2, "work"),
-            QR(5, "Computer", 3, "work"),
-            QR(6, "Computer", 4, "work"),
-            QR(7, "Computer", 5, "work"),
-            QR(8, "Computer", 6, "work"),
-            QR(9, "Computer", 7, "work"),
-            QR(10, "Computer", 8, "work"),
-            QR(11, "Computer", 9, "work"),
+                QR(1, "Bathroom", 1, "home"),
+                QR(2, "Kitchen", 1, "home"),
+                QR(3, "Computer", 1, "work"),
+                QR(4, "Computer", 2, "work"),
+                QR(5, "Computer", 3, "work"),
+                QR(6, "Computer", 4, "work"),
+                QR(7, "Computer", 5, "work"),
+                QR(8, "Computer", 6, "work"),
+                QR(9, "Computer", 7, "work"),
+                QR(10, "Computer", 8, "work"),
+                QR(11, "Computer", 9, "work"),
         )
 
         for(qr in qrs){
@@ -61,37 +58,39 @@ class MainActivity : AppCompatActivity() {
         firstTab?.icon?.setColorFilter(selectedIconColor, PorterDuff.Mode.SRC_IN)
 
         tabs.addOnTabSelectedListener(
-            object : TabLayout.ViewPagerOnTabSelectedListener(viewPager) {
-                override fun onTabSelected(tab: TabLayout.Tab) {
-                    super.onTabSelected(tab)
-                    val iconColor = ContextCompat.getColor(applicationContext, R.color.blue_app)
-                    tab.icon?.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
-                    viewPager.currentItem = tab.position
-                    enableButtons(tabs)
-                }
+                object : TabLayout.ViewPagerOnTabSelectedListener(viewPager) {
+                    override fun onTabSelected(tab: TabLayout.Tab) {
+                        super.onTabSelected(tab)
+                        val iconColor = ContextCompat.getColor(applicationContext, R.color.blue_app)
+                        tab.icon?.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+                        viewPager.currentItem = tab.position
+                        enableButtons(tabs)
+                    }
 
-                override fun onTabUnselected(tab: TabLayout.Tab) {
-                    val iconColor = ContextCompat.getColor(applicationContext, R.color.black)
-                    tab.icon?.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
-                }
-                override fun onTabReselected(tab: TabLayout.Tab) {}
-            })
+                    override fun onTabUnselected(tab: TabLayout.Tab) {
+                        val iconColor = ContextCompat.getColor(applicationContext, R.color.black)
+                        tab.icon?.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+                    }
+
+                    override fun onTabReselected(tab: TabLayout.Tab) {}
+                })
 
         viewPager.addOnPageChangeListener(
-            object : ViewPager.OnPageChangeListener{
-                override fun onPageScrolled(
-                    position: Int,
-                    positionOffset: Float,
-                    positionOffsetPixels: Int
-                ) {}
+                object : ViewPager.OnPageChangeListener {
+                    override fun onPageScrolled(
+                            position: Int,
+                            positionOffset: Float,
+                            positionOffsetPixels: Int
+                    ) {
+                    }
 
-                override fun onPageSelected(position: Int) {
-                    tabs.getTabAt(position)?.select()
-                    enableButtons(tabs)
+                    override fun onPageSelected(position: Int) {
+                        tabs.getTabAt(position)?.select()
+                        enableButtons(tabs)
+                    }
+
+                    override fun onPageScrollStateChanged(state: Int) {}
                 }
-
-                override fun onPageScrollStateChanged(state: Int) {}
-            }
         )
 
         val addButton = findViewById<ImageButton>(R.id.addButton)
@@ -108,11 +107,17 @@ class MainActivity : AppCompatActivity() {
 
                 fragment.show(supportFragmentManager, "tag")
             }
+            else{
+                val createActivity = Intent(applicationContext, AlarmCreate::class.java).apply {
+                    putExtra("qrs", qrs)
+                }
+                startActivity(createActivity)
+            }
         }
 
         sectionsPagerAdapter.qrsFragment.onItemClick = { position, QR ->
             val fragment = QrSheetFragment.newInstance(position, QR.id, QR.name, QR.location, QR.number)
-            fragment.edited = {newPosition, newQR ->
+            fragment.edited = { newPosition, newQR ->
                 newQR.createImage()
                 qrs[newPosition] = newQR
                 (sectionsPagerAdapter.qrsFragment.view as RecyclerView).adapter?.notifyItemChanged(position)
@@ -121,7 +126,7 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        sectionsPagerAdapter.qrsFragment.onItemSelected = {position, isChecked ->
+        sectionsPagerAdapter.qrsFragment.onItemSelected = { position, isChecked ->
             if(isChecked){
                 selectedQrs.add(position)
             }
@@ -138,9 +143,22 @@ class MainActivity : AppCompatActivity() {
             for(i in selectedQrs){
                 qrsToPrint.add(qrs[i])
             }
-            QR.createPdf(qrsToPrint, applicationContext.cacheDir)
+            val file = QR.createPdf(qrsToPrint, applicationContext.cacheDir)
+            val newFile = File(applicationContext.cacheDir, "/pdfs/QRs.pdf")
+            if(newFile.exists()){
+                newFile.delete()
+            }
+            file.copyTo(newFile)
+            val fileUri = FileProvider.getUriForFile(applicationContext, applicationContext.packageName + ".provider", newFile)
+            grantUriPermission(packageName, fileUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_STREAM, fileUri)
+                type = "application/pdf"
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Save pdf"))
         }
-
     }
 
     private fun enableButtons(tabs: TabLayout){

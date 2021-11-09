@@ -14,12 +14,15 @@ import com.itextpdf.text.Rectangle
 import com.itextpdf.text.pdf.PdfWriter
 import java.io.File
 import java.io.FileOutputStream
+import android.os.Parcel;
+import android.os.Parcelable;
+import java.io.Serializable
 
 
-class QR(var id: Int, var name: String, var number: Int, var location: String) {
+class QR(var id: Int, var name: String, var number: Int, var location: String) : Serializable {
     var checked = false
     var imageByteArray: ByteArray = byteArrayOf()
-    var bitmap: Bitmap = Bitmap.createBitmap(QR_WIDTH, QR_HEIGHT, Bitmap.Config.RGB_565)
+    @Transient var bitmap: Bitmap = Bitmap.createBitmap(QR_WIDTH, QR_HEIGHT, Bitmap.Config.RGB_565)
     var isImageCreated = false
 
 
@@ -88,7 +91,7 @@ class QR(var id: Int, var name: String, var number: Int, var location: String) {
         private const val PAGE_WIDTH: Int = 2880
         private const val PAGE_HEIGHT: Int = 4060
 
-        fun createPdf(qrs: MutableList<QR>, dir: File){
+        fun createPdf(qrs: MutableList<QR>, dir: File): File{
             val document = Document(Rectangle(595f, 842f))
 
             val file = File.createTempFile("temppdf", ".pdf", dir)
@@ -121,6 +124,8 @@ class QR(var id: Int, var name: String, var number: Int, var location: String) {
                 document.add(image)
             }
             document.close()
+
+            return file
         }
     }
 }
