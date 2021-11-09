@@ -16,7 +16,8 @@ class QRFragment(var QRs: ArrayList<QR>) : Fragment() {
 
     var onItemClick: ((Int, QR) -> Unit)? = null
 
-    var adapter: QRRecyclerViewAdapter? = null
+    var onItemSelected: ((Int, Boolean) -> Unit)? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,9 +39,11 @@ class QRFragment(var QRs: ArrayList<QR>) : Fragment() {
                     else -> GridLayoutManager(context, columnCount)
                 }
                 adapter = QRRecyclerViewAdapter(QRs)
-                this.adapter = adapter as QRRecyclerViewAdapter
                 (adapter as QRRecyclerViewAdapter).onItemClick = { position, QR ->
                     onItemClick?.invoke(position, QR)
+                }
+                (adapter as QRRecyclerViewAdapter).onItemSelected = { position, isChecked ->
+                    onItemSelected?.invoke(position, isChecked)
                 }
             }
         }

@@ -6,6 +6,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ImageButton
+        android:id="@+id/deleteButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/add_button_background"
+        android:elevation="10dp"
+        android:src="@mipmap/delete_foreground"
+        android:visibility="gone" />
+
+    <ImageButton
+        android:id="@+id/printButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/add_button_background"
+        android:elevation="10dp"
+        android:src="@mipmap/print_foreground"
+        android:visibility="gone" />
+
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"

@@ -1,9 +1,11 @@
 package com.fedjaz.wakeupalarm
 
+import android.provider.MediaStore
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import java.util.*
@@ -13,7 +15,9 @@ class QRRecyclerViewAdapter(
         private val values: List<QR>)
     : RecyclerView.Adapter<QRRecyclerViewAdapter.ViewHolder>() {
 
+    private var disableEvents = false
     var onItemClick: ((Int, QR) -> Unit)? = null
+    var onItemSelected: ((Int, Boolean) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -27,7 +31,13 @@ class QRRecyclerViewAdapter(
         holder.nameView.text = item.getQrName()
         holder.locationView.text = item.location
 
-        item.createImage()
+        disableEvents = true
+        holder.qrCheckBox.isChecked = values[position].checked
+        disableEvents = false
+
+        if(!item.isImageCreated){
+            item.createImage()
+        }
         holder.qrImage.setImageBitmap(item.bitmap)
     }
 
@@ -37,11 +47,20 @@ class QRRecyclerViewAdapter(
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val nameView: TextView = view.findViewById(R.id.qrName)
         val locationView: TextView = view.findViewById(R.id.qrLocation)
-        val qrImage: ImageView = view.findViewById(R.id.imageView)
+        val qrCheckBox: CheckBox = view.findViewById(R.id.qrCheckBox)
+        val qrImage: ImageView = view.findViewById(R.id.qrImageView)
 
         init {
             view.setOnClickListener {
                 onItemClick?.invoke(adapterPosition, values[adapterPosition])
+            }
+            val qrCheckBox = view.findViewById<CheckBox>(R.id.qrCheckBox)
+            qrCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+                if(!disableEvents){
+                    values[adapterPosition].checked = isChecked
+                    onItemSelected?.invoke(adapterPosition, isChecked)
+                }
+
             }
         }
 
