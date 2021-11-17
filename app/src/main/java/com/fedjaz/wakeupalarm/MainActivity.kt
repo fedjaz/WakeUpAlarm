@@ -3,6 +3,7 @@ package com.fedjaz.wakeupalarm
 import android.content.Intent
 import android.graphics.PorterDuff
 import android.os.Bundle
+import android.util.Log
 import android.view.View.*
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
@@ -10,46 +11,61 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
+import com.fedjaz.wakeupalarm.db.DataAccessLayer
 import com.google.android.material.tabs.TabLayout
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private val selectedQrs = mutableListOf<Int>()
     private val selectedAlarms = mutableListOf<Int>()
+    var sectionsPagerAdapter: SectionsPagerAdapter?= null
+    var dataAccessLayer: DataAccessLayer? = null
+
+    val alarms = arrayListOf(
+            Alarm(1, 7, 30, true,
+                    arrayListOf(true, true, true, true, true, false, false)),
+            Alarm(2, 10, 0, true,
+                    arrayListOf(true, true, true, true, true, true, true)),
+            Alarm(3, 18, 5, true,
+                    arrayListOf(false, true, false, false, false, true, true)),
+            Alarm(4, 18, 5, true,
+                    arrayListOf(false, false, false, false, false, false, false)),
+    )
+
+    val qrs = arrayListOf(
+            QR(1, "Bathroom", 1, "home"),
+            QR(2, "Kitchen", 1, "home"),
+            QR(3, "Computer", 1, "work"),
+            QR(4, "Computer", 2, "work"),
+            QR(5, "Computer", 3, "work"),
+            QR(6, "Computer", 4, "work"),
+            QR(7, "Computer", 5, "work"),
+            QR(8, "Computer", 6, "work"),
+            QR(9, "Computer", 7, "work"),
+            QR(10, "Computer", 8, "work"),
+            QR(11, "Computer", 9, "work"),
+    )
+
+    val activityLauncher = registerForActivityResult(CreateAlarmContract()) { alarm ->
+        if(alarm?.id == 0){
+            addNewAlarmFromActivity(alarm)
+        }
+        else{
+            1 + 1
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val alarms = arrayListOf(
-                Alarm(1, 7, 30, true,
-                        arrayListOf(true, true, true, true, true, false, false)),
-                Alarm(2, 10, 0, true,
-                        arrayListOf(true, true, true, true, true, true, true)),
-                Alarm(3, 18, 5, true,
-                        arrayListOf(false, true, false, false, false, true, true)),
-                Alarm(4, 18, 5, true,
-                        arrayListOf(false, false, false, false, false, false, false)),
-        )
-
-        val qrs = arrayListOf(
-                QR(1, "Bathroom", 1, "home"),
-                QR(2, "Kitchen", 1, "home"),
-                QR(3, "Computer", 1, "work"),
-                QR(4, "Computer", 2, "work"),
-                QR(5, "Computer", 3, "work"),
-                QR(6, "Computer", 4, "work"),
-                QR(7, "Computer", 5, "work"),
-                QR(8, "Computer", 6, "work"),
-                QR(9, "Computer", 7, "work"),
-                QR(10, "Computer", 8, "work"),
-                QR(11, "Computer", 9, "work"),
-        )
+        dataAccessLayer = DataAccessLayer(filesDir.absolutePath + "/database.db")
 
         for(qr in qrs){
             qr.createImage()
         }
 
-        val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager, alarms, qrs)
+        sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager, alarms, qrs)
         val viewPager = findViewById<ViewPager>(R.id.view_pager)
         viewPager.adapter = sectionsPagerAdapter
         val tabs = findViewById<TabLayout>(R.id.tabs)
@@ -102,31 +118,28 @@ class MainActivity : AppCompatActivity() {
                     QR.id = qrs.size
                     QR.createImage()
                     qrs.add(QR)
-                    (sectionsPagerAdapter.qrsFragment.view as RecyclerView).adapter?.notifyItemInserted(qrs.size - 1)
+                    (sectionsPagerAdapter?.qrsFragment?.view as RecyclerView).adapter?.notifyItemInserted(qrs.size - 1)
                 }
 
                 fragment.show(supportFragmentManager, "tag")
             }
             else{
-                val createActivity = Intent(applicationContext, AlarmCreate::class.java).apply {
-                    putExtra("qrs", qrs)
-                }
-                startActivity(createActivity)
+                activityLauncher.launch(Pair(qrs, null))
             }
         }
 
-        sectionsPagerAdapter.qrsFragment.onItemClick = { position, QR ->
+        sectionsPagerAdapter?.qrsFragment?.onItemClick = { position, QR ->
             val fragment = QrSheetFragment.newInstance(position, QR.id, QR.name, QR.location, QR.number)
             fragment.edited = { newPosition, newQR ->
                 newQR.createImage()
                 qrs[newPosition] = newQR
-                (sectionsPagerAdapter.qrsFragment.view as RecyclerView).adapter?.notifyItemChanged(position)
+                (sectionsPagerAdapter?.qrsFragment?.view as RecyclerView).adapter?.notifyItemChanged(position)
             }
             fragment.show(supportFragmentManager, "tag")
 
         }
 
-        sectionsPagerAdapter.qrsFragment.onItemSelected = { position, isChecked ->
+        sectionsPagerAdapter?.qrsFragment?.onItemSelected = { position, isChecked ->
             if(isChecked){
                 selectedQrs.add(position)
             }
@@ -159,6 +172,12 @@ class MainActivity : AppCompatActivity() {
             }
             startActivity(Intent.createChooser(shareIntent, "Save pdf"))
         }
+    }
+
+    private fun addNewAlarmFromActivity(alarm: Alarm){
+        alarm.id = alarms.size + 1
+        alarms.add(alarm)
+        (sectionsPagerAdapter?.alarmsFragment?.view as RecyclerView).adapter?.notifyItemInserted(alarms.size - 1)
     }
 
     private fun enableButtons(tabs: TabLayout){

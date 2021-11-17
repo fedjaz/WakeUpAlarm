@@ -20,7 +20,7 @@ import java.io.Serializable
 
 
 class QR(var id: Int, var name: String, var number: Int, var location: String) : Serializable {
-    var checked = false
+    @Transient var checked = false
     var imageByteArray: ByteArray = byteArrayOf()
     @Transient var bitmap: Bitmap = Bitmap.createBitmap(QR_WIDTH, QR_HEIGHT, Bitmap.Config.RGB_565)
     var isImageCreated = false
