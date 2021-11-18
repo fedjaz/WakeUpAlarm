@@ -112,12 +112,18 @@ class AlarmCreate : AppCompatActivity() {
             editAlarm
         }
         else{
-            Alarm(0, hour, minute, true, days)
+            val alarm = Alarm(0, hour, minute, true, days)
+            alarm.qrIds = checkedQrs
+            alarm
         }
 
         val data = Intent()
         data.putExtra("alarm", returnAlarm)
         setResult(Activity.RESULT_OK, data)
         finish()
+    }
+
+    private fun checkForEquality(arr1: ArrayList<Boolean>, arr2: ArrayList<Boolean>){
+
     }
 }

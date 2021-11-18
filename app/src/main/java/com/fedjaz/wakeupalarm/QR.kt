@@ -54,9 +54,8 @@ class QR(var id: Int, var name: String, var number: Int, var location: String) :
         isImageCreated = true
     }
 
-    fun getImage(): Bitmap{
+    fun initializeImage(){
         bitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size)
-        return bitmap
     }
 
     fun getQrName(): String{

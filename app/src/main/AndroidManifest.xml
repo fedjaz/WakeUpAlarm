@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.fedjaz.wakeupalarm">
 
+
     <application
         android:allowBackup="true"
         android:hardwareAccelerated="true"
@@ -28,6 +29,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+        <meta-data android:name="QUERY_LOG" android:value="true" />
+        <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.fedjaz.wakeupalarm.db" />
+        <meta-data android:name="VERSION" android:value="1" />
     </application>
 
 </manifest>

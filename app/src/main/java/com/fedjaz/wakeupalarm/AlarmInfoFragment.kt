@@ -16,6 +16,10 @@ class AlarmInfoFragment(var alarms: ArrayList<Alarm>) : Fragment() {
 
     private var columnCount = 1
 
+    var onItemEnabled: ((Int, Boolean) -> Unit)? = null
+    var onItemClick: ((Int, Alarm) -> Unit)? = null
+    var onItemSelected: ((Int, Boolean) -> Unit)? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -38,6 +42,15 @@ class AlarmInfoFragment(var alarms: ArrayList<Alarm>) : Fragment() {
                     else -> GridLayoutManager(context, columnCount)
                 }
                 adapter = AlarmRecyclerViewAdapter(alarms)
+                (adapter as AlarmRecyclerViewAdapter).onItemClick = {position, alarm ->
+                    onItemClick?.invoke(position, alarm)
+                }
+                (adapter as AlarmRecyclerViewAdapter).onItemEnabled = {position, enabled ->
+                    onItemEnabled?.invoke(position, enabled)
+                }
+                (adapter as AlarmRecyclerViewAdapter).onItemSelected = {position, selected ->
+                    onItemSelected?.invoke(position, selected)
+                }
             }
         }
         return view

@@ -1,8 +1,8 @@
 package com.fedjaz.wakeupalarm.db
 
-import org.jetbrains.exposed.dao.id.IntIdTable
+import com.orm.SugarRecord
 
-class AlarmQrRelationTable : IntIdTable("AlarmQRRelations") {
-    val alarmId = integer("alarmId")
-    val qrId = integer("qrId")
+class AlarmQrRelationTable : SugarRecord() {
+    var alarmId = 0
+    var qrId = 0
 }

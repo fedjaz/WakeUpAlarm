@@ -1,10 +1,10 @@
 package com.fedjaz.wakeupalarm.db
 
-import org.jetbrains.exposed.dao.id.IntIdTable
+import com.orm.SugarRecord
 
-class QRTable : IntIdTable("QR"){
-    val name = text("name")
-    val number = integer("number")
-    val location = text("location")
-    val image = blob("image")
+class QRTable : SugarRecord(){
+    var name = ""
+    var number = 0
+    var location = ""
+    var image = byteArrayOf()
 }

@@ -37,12 +37,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
-    implementation 'org.sqldroid:sqldroid:1.0.3'
-    implementation("org.jetbrains.exposed:exposed-core:0.36.2")
-    implementation("org.jetbrains.exposed:exposed-dao:0.36.2")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.36.2")
-    implementation("org.jetbrains.exposed:exposed-jodatime:0.36.2")
+    implementation 'com.github.satyan:sugar:1.5'
     implementation "androidx.fragment:fragment:1.3.6"
     implementation 'com.h2database:h2:1.4.200'
     implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.0.6'
