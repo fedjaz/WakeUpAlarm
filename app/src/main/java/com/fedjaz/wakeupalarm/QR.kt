@@ -19,7 +19,7 @@ import android.os.Parcelable;
 import java.io.Serializable
 
 
-class QR(var id: Int, var name: String, var number: Int, var location: String) : Serializable {
+class QR(var id: Int = -1, var name: String, var number: Int, var location: String) : Serializable {
     @Transient var checked = false
     var imageByteArray: ByteArray = byteArrayOf()
     @Transient var bitmap: Bitmap = Bitmap.createBitmap(QR_WIDTH, QR_HEIGHT, Bitmap.Config.RGB_565)

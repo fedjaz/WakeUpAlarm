@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.widget.SwitchCompat
@@ -16,6 +17,7 @@ class AlarmRecyclerViewAdapter(
     var onItemEnabled: ((Int, Boolean) -> Unit)? = null
     var onItemClick: ((Int, Alarm) -> Unit)? = null
     var onItemSelected: ((Int, Boolean) -> Unit)? = null
+    private var disableEvents = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -28,6 +30,10 @@ class AlarmRecyclerViewAdapter(
         holder.dateView.text = item.getDaysString()
         holder.timeDisplay.text = item.getTimeString()
         holder.enabledSwitch.isChecked = item.enabled
+
+        disableEvents = true
+        holder.alarmCheckBox.isChecked = values[position].checked
+        disableEvents = false
     }
 
     override fun getItemCount(): Int = values.size
@@ -36,15 +42,20 @@ class AlarmRecyclerViewAdapter(
         val dateView: TextView = view.findViewById(R.id.dateDisplay)
         val timeDisplay: TextView = view.findViewById(R.id.timeDisplay)
         val enabledSwitch: SwitchCompat = view.findViewById(R.id.alarmSwitch)
+        val alarmCheckBox: CheckBox = view.findViewById(R.id.alarmCheckBox)
 
         init {
-//            val checkBox = view.findViewById<>()
             val switch = view.findViewById<SwitchCompat>(R.id.alarmSwitch)
             switch.setOnCheckedChangeListener { _, isChecked ->
                 onItemEnabled?.invoke(adapterPosition, isChecked)
             }
             view.setOnClickListener {
                 onItemClick?.invoke(adapterPosition, values[adapterPosition])
+            }
+            alarmCheckBox.setOnCheckedChangeListener { _, isChecked ->
+                if(!disableEvents){
+                    onItemSelected?.invoke(values[adapterPosition].id, isChecked)
+                }
             }
         }
 

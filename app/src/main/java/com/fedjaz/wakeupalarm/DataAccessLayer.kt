@@ -66,7 +66,7 @@ class DataAccessLayer {
         }
         alarmRecord.enabled = alarm.enabled
 
-        val alarmQrRelations = SugarRecord.find(AlarmQrRelationTable::class.java, "alarmId = ?", alarm.id.toString())
+        val alarmQrRelations = SugarRecord.find(AlarmQrRelationTable::class.java, "ALARM_ID = ?", alarm.id.toString())
         for(alarmQrRelation in alarmQrRelations){
             alarmQrRelation.delete()
         }
@@ -78,6 +78,12 @@ class DataAccessLayer {
 
             alarmQrRelation.save()
         }
+        alarmRecord.save()
+    }
+
+    fun enableAlarm(alarm: Alarm){
+        val alarmRecord = SugarRecord.findById(AlarmTable::class.java, alarm.id)
+        alarmRecord.enabled = alarm.enabled
         alarmRecord.save()
     }
 

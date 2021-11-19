@@ -53,17 +53,13 @@ class QRRecyclerViewAdapter(
                 onItemClick?.invoke(adapterPosition, values[adapterPosition])
             }
             val qrCheckBox = view.findViewById<CheckBox>(R.id.qrCheckBox)
-            qrCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            qrCheckBox.setOnCheckedChangeListener { _, isChecked ->
                 if(!disableEvents){
                     values[adapterPosition].checked = isChecked
-                    onItemSelected?.invoke(adapterPosition, isChecked)
+                    onItemSelected?.invoke(values[adapterPosition].id, isChecked)
                 }
 
             }
-        }
-
-        override fun toString(): String {
-            return "qq"
         }
     }
 }

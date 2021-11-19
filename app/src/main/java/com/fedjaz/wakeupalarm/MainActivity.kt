@@ -27,12 +27,10 @@ class MainActivity : AppCompatActivity() {
     private var qrs = arrayListOf<QR>()
 
     private val activityLauncher = registerForActivityResult(CreateAlarmContract()) { alarm ->
-        if(alarm?.id == 0){
+        if(alarm != null){
             addNewAlarmFromActivity(alarm)
         }
-        else{
-            1 + 1
-        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,11 +96,11 @@ class MainActivity : AppCompatActivity() {
         addButton.setOnClickListener {
             if(tabs.selectedTabPosition == 1){
                 val fragment = QrSheetFragment.newInstance()
-                fragment.created = { QR ->
-                    QR.id = qrs.size
-                    QR.createImage()
-                    QR.id = dataAccessLayer!!.createQr(QR)
-                    qrs.add(QR)
+                fragment.created = { qr ->
+                    qr.id = dataAccessLayer!!.createQr(qr)
+                    qr.createImage()
+                    dataAccessLayer!!.editQr(qr)
+                    qrs.add(qr)
                     (sectionsPagerAdapter?.qrsFragment?.view as RecyclerView).adapter?.notifyItemInserted(qrs.size - 1)
                 }
 
@@ -114,30 +112,49 @@ class MainActivity : AppCompatActivity() {
         }
 
         sectionsPagerAdapter?.qrsFragment?.onItemClick = { position, QR ->
-            val fragment = QrSheetFragment.newInstance(position, QR.id, QR.name, QR.location, QR.number)
-            fragment.edited = { newPosition, newQR ->
+            val fragment = QrSheetFragment.newInstance(QR)
+            fragment.edited = { newQR ->
                 newQR.createImage()
                 dataAccessLayer!!.editQr(newQR)
-                qrs[newPosition] = newQR
+                for(i in 0 until qrs.size){
+                    if(qrs[i].id == newQR.id){
+                        qrs[i] = newQR
+                    }
+                }
                 (sectionsPagerAdapter?.qrsFragment?.view as RecyclerView).adapter?.notifyItemChanged(position)
             }
             fragment.show(supportFragmentManager, "tag")
 
         }
 
-        sectionsPagerAdapter?.qrsFragment?.onItemSelected = { position, isChecked ->
+        sectionsPagerAdapter?.qrsFragment?.onItemSelected = { id, isChecked ->
             if(isChecked){
-                selectedQrs.add(qrs[position].id)
+                selectedQrs.add(id)
             }
             else{
-                selectedQrs.remove(qrs[position].id)
+                selectedQrs.remove(id)
             }
 
             enableButtons(tabs)
         }
 
-        sectionsPagerAdapter?.alarmsFragment?.onItemClick = {position, alarm ->
+        sectionsPagerAdapter?.alarmsFragment?.onItemClick = {_, alarm ->
             activityLauncher.launch(Pair(qrs, alarm))
+        }
+
+        sectionsPagerAdapter?.alarmsFragment?.onItemEnabled = { position, enabled ->
+            alarms[position].enabled = enabled
+            dataAccessLayer!!.enableAlarm(alarms[position])
+        }
+
+        sectionsPagerAdapter?.alarmsFragment?.onItemSelected = {id, checked ->
+            if(checked){
+                selectedAlarms.add(id)
+            }
+            else{
+                selectedAlarms.remove(id)
+            }
+            enableButtons(tabs)
         }
 
         val printButton = findViewById<ImageButton>(R.id.printButton)
@@ -168,7 +185,19 @@ class MainActivity : AppCompatActivity() {
         val deleteButton = findViewById<ImageButton>(R.id.deleteButton)
         deleteButton.setOnClickListener {
             if(tabs.selectedTabPosition == 0){
-                TODO()
+                val alarmsToDelete = arrayListOf<Alarm>()
+                for(alarm in alarms){
+                    if(alarm.id in selectedAlarms){
+                        alarmsToDelete.add(alarm)
+                        dataAccessLayer!!.deleteAlarm(alarm)
+                    }
+                }
+                for(alarm in alarmsToDelete){
+                    alarms.remove(alarm)
+                }
+                (sectionsPagerAdapter?.alarmsFragment?.view as RecyclerView).adapter?.notifyDataSetChanged()
+                selectedAlarms = arrayListOf<Int>()
+                enableButtons(tabs)
             }
             else{
                 val qrsToDelete = arrayListOf<QR>()
@@ -192,13 +221,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addNewAlarmFromActivity(alarm: Alarm){
-        if(alarm.id == 0){
+        if(alarm.id == -1){
             alarm.id = dataAccessLayer!!.createAlarm(alarm)
             alarms.add(alarm)
             (sectionsPagerAdapter?.alarmsFragment?.view as RecyclerView).adapter?.notifyItemInserted(alarms.size - 1)
         }
         else{
             dataAccessLayer!!.editAlarm(alarm)
+            for(i in 0 until alarms.size){
+                if(alarms[i].id == alarm.id){
+                    alarms[i] = alarm
+                }
+            }
             (sectionsPagerAdapter?.alarmsFragment?.view as RecyclerView).adapter?.notifyDataSetChanged()
         }
     }

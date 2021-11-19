@@ -4,12 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.RadioGroup
-import android.widget.TimePicker
 import androidx.constraintlayout.widget.ConstraintLayout
 import android.view.View.*
-import android.widget.Button
-import android.widget.CheckBox
+import android.widget.*
 
 class AlarmCreate : AppCompatActivity() {
     private val daily = arrayListOf(true, true, true, true, true, true, true)
@@ -31,6 +28,9 @@ class AlarmCreate : AppCompatActivity() {
         val timePicker = findViewById<TimePicker>(R.id.alarmTimePicker)
         timePicker.setIs24HourView(true)
 
+        val radioGroup = findViewById<RadioGroup>(R.id.repeatRadioGroup)
+        val daysLayout = findViewById<ConstraintLayout>(R.id.daysLayout)
+
         if(editAlarm != null){
             timePicker.hour = editAlarm.hour
             timePicker.minute = editAlarm.minute
@@ -39,6 +39,38 @@ class AlarmCreate : AppCompatActivity() {
                     qr.checked = true
                 }
             }
+            val monday = findViewById<CheckBox>(R.id.mondayCheckBox)
+            val tuesday = findViewById<CheckBox>(R.id.tuesdayCheckBox)
+            val wednesday = findViewById<CheckBox>(R.id.wednesdayCheckBox)
+            val thursday = findViewById<CheckBox>(R.id.thursdayCheckBox)
+            val friday = findViewById<CheckBox>(R.id.fridayCheckBox)
+            val saturday = findViewById<CheckBox>(R.id.saturdayCheckBox)
+            val sunday = findViewById<CheckBox>(R.id.sundayCheckBox)
+            val daysBoxes = listOf(monday, tuesday, wednesday, thursday, friday, saturday, sunday)
+
+            val onceRadio = findViewById<RadioButton>(R.id.onceRadioButton)
+            val dailyRadio = findViewById<RadioButton>(R.id.dailyRadioButton)
+            val workDaysRadio = findViewById<RadioButton>(R.id.workDaysRadioButton)
+            val selectedDaysRadio = findViewById<RadioButton>(R.id.selectedDaysRadioButton)
+            when {
+                editAlarm.isOneTime -> {
+                    onceRadio.isChecked = true
+                }
+                editAlarm.isWorkDays -> {
+                    workDaysRadio.isChecked = true
+                }
+                editAlarm.isDaily -> {
+                    dailyRadio.isChecked = true
+                }
+                else -> {
+                    selectedDaysRadio.isChecked = true
+                    daysLayout.visibility = VISIBLE
+                    for(i in 0 until editAlarm.days.size){
+                        daysBoxes[i].isChecked = editAlarm.days[i]
+                    }
+                }
+            }
+
         }
 
         val qrsFragment = QRFragment.newInstance(1, qrs)
@@ -46,8 +78,7 @@ class AlarmCreate : AppCompatActivity() {
         transaction.replace(R.id.qrLayout, qrsFragment, "tag")
         transaction.commit()
 
-        val radioGroup = findViewById<RadioGroup>(R.id.repeatRadioGroup)
-        val daysLayout = findViewById<ConstraintLayout>(R.id.daysLayout)
+
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
             if(checkedId == R.id.selectedDaysRadioButton){
                 daysLayout.visibility = VISIBLE
@@ -112,7 +143,7 @@ class AlarmCreate : AppCompatActivity() {
             editAlarm
         }
         else{
-            val alarm = Alarm(0, hour, minute, true, days)
+            val alarm = Alarm(-1, hour, minute, true, days)
             alarm.qrIds = checkedQrs
             alarm
         }
@@ -121,9 +152,5 @@ class AlarmCreate : AppCompatActivity() {
         data.putExtra("alarm", returnAlarm)
         setResult(Activity.RESULT_OK, data)
         finish()
-    }
-
-    private fun checkForEquality(arr1: ArrayList<Boolean>, arr2: ArrayList<Boolean>){
-
     }
 }

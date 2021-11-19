@@ -1,43 +1,28 @@
 package com.fedjaz.wakeupalarm
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import java.text.FieldPosition
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "position"
-private const val ARG_PARAM2 = "qrId"
-private const val ARG_PARAM3 = "name"
-private const val ARG_PARAM4 = "location"
-private const val ARG_PARAM5 = "number"
+private const val ARG_PARAM1 = "qr"
 
 class QrSheetFragment : BottomSheetDialogFragment() {
-    private var position: Int? = null
-    private var qrId: Int? = null
-    private var name: String? = null
-    private var location: String? = null
-    private var number: Int? = null
+    private var editQr: QR? = null
 
     var created: ((QR) -> Unit)? = null
-    var edited: ((Int, QR) -> Unit)? = null
+    var edited: ((QR) -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            position = it.getInt(ARG_PARAM1)
-            qrId = it.getInt(ARG_PARAM2)
-            name = it.getString(ARG_PARAM3)
-            location = it.getString(ARG_PARAM4)
-            number = it.getInt(ARG_PARAM5)
+            editQr = it.getSerializable(ARG_PARAM1) as QR?
         }
-
     }
 
     override fun onCreateView(
@@ -49,17 +34,16 @@ class QrSheetFragment : BottomSheetDialogFragment() {
         val locationEditText = view.findViewById<EditText>(R.id.qrLocationEditText)
         val numberEditText = view.findViewById<EditText>(R.id.qrNumberEditText)
 
-        if(qrId != 0){
-            nameEditText.setText(name)
-            locationEditText.setText(location)
-            numberEditText.setText(number.toString())
+        if(editQr != null){
+            nameEditText.setText(editQr!!.name)
+            locationEditText.setText(editQr!!.location)
+            numberEditText.setText(editQr!!.number.toString())
             view.findViewById<Button>(R.id.saveQrButton).setOnClickListener {
-                val newName = nameEditText.text.toString()
-                val newLocation = locationEditText.text.toString()
-                val newNumber = numberEditText.text.toString().toInt()
-                val newQr = QR(this.qrId!!, newName, newNumber, newLocation)
+                editQr!!.name = nameEditText.text.toString()
+                editQr!!.location = locationEditText.text.toString()
+                editQr!!.number = numberEditText.text.toString().toInt()
 
-                edited?.invoke(position!!, newQr)
+                edited?.invoke(editQr!!)
                 dismiss()
             }
         }
@@ -68,7 +52,7 @@ class QrSheetFragment : BottomSheetDialogFragment() {
                 val newName = nameEditText.text.toString()
                 val newLocation = locationEditText.text.toString()
                 val newNumber = numberEditText.text.toString().toInt()
-                val newQr = QR(0, newName, newNumber, newLocation)
+                val newQr = QR(-1, newName, newNumber, newLocation)
 
                 created?.invoke(newQr)
                 dismiss()
@@ -85,23 +69,11 @@ class QrSheetFragment : BottomSheetDialogFragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(position: Int? = null, qrId: Int? = null, name: String? = null, location: String? = null, number: Int? = null) =
+        fun newInstance(editQr: QR? = null) =
             QrSheetFragment().apply {
                 arguments = Bundle().apply {
-                    if(position != null){
-                        putInt(ARG_PARAM1, position)
-                    }
-                    if(qrId != null){
-                        putInt(ARG_PARAM2, qrId)
-                    }
-                    if(name != null){
-                        putString(ARG_PARAM3, name)
-                    }
-                    if(location != null){
-                        putString(ARG_PARAM4, location)
-                    }
-                    if(number != null){
-                        putInt(ARG_PARAM5, number)
+                    if(editQr != null){
+                        putSerializable(ARG_PARAM1, editQr)
                     }
                 }
             }
