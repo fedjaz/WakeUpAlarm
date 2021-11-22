@@ -10,7 +10,7 @@ import android.widget.TextView
 
 
 class QRRecyclerViewAdapter(
-        private val values: List<QR>)
+        private val values: List<QR>, private val isViewOnly: Boolean)
     : RecyclerView.Adapter<QRRecyclerViewAdapter.ViewHolder>() {
 
     private var disableEvents = false
@@ -49,17 +49,22 @@ class QRRecyclerViewAdapter(
         val qrImage: ImageView = view.findViewById(R.id.qrImageView)
 
         init {
-            view.setOnClickListener {
-                onItemClick?.invoke(adapterPosition, values[adapterPosition])
-            }
-            val qrCheckBox = view.findViewById<CheckBox>(R.id.qrCheckBox)
-            qrCheckBox.setOnCheckedChangeListener { _, isChecked ->
-                if(!disableEvents){
-                    values[adapterPosition].checked = isChecked
-                    onItemSelected?.invoke(values[adapterPosition].id, isChecked)
+            if(!isViewOnly){
+                view.setOnClickListener {
+                    onItemClick?.invoke(adapterPosition, values[adapterPosition])
                 }
-
+                val qrCheckBox = view.findViewById<CheckBox>(R.id.qrCheckBox)
+                qrCheckBox.setOnCheckedChangeListener { _, isChecked ->
+                    if(!disableEvents){
+                        values[adapterPosition].checked = isChecked
+                        onItemSelected?.invoke(values[adapterPosition].id, isChecked)
+                    }
+                }
             }
+            else{
+                qrCheckBox.isClickable = false
+            }
+
         }
     }
 }

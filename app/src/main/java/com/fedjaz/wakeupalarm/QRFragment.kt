@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 
 
-class QRFragment(var QRs: ArrayList<QR>) : Fragment() {
+class QRFragment(var QRs: ArrayList<QR>, val isViewOnly: Boolean) : Fragment() {
 
     private var columnCount = 1
 
@@ -38,7 +38,7 @@ class QRFragment(var QRs: ArrayList<QR>) : Fragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                adapter = QRRecyclerViewAdapter(QRs)
+                adapter = QRRecyclerViewAdapter(QRs, isViewOnly)
                 (adapter as QRRecyclerViewAdapter).onItemClick = { position, QR ->
                     onItemClick?.invoke(position, QR)
                 }
@@ -57,8 +57,8 @@ class QRFragment(var QRs: ArrayList<QR>) : Fragment() {
 
         // TODO: Customize parameter initialization
         @JvmStatic
-        fun newInstance(columnCount: Int, QRs: ArrayList<QR>) =
-                QRFragment(QRs).apply {
+        fun newInstance(QRs: ArrayList<QR>, isViewOnly: Boolean) =
+                QRFragment(QRs, isViewOnly).apply {
                     arguments = Bundle().apply {
                         putInt(ARG_COLUMN_COUNT, columnCount)
                     }

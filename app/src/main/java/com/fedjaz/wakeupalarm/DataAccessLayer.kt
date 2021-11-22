@@ -1,11 +1,18 @@
 package com.fedjaz.wakeupalarm
+import android.content.Context
 import com.fedjaz.wakeupalarm.db.AlarmQrRelationTable
 import com.fedjaz.wakeupalarm.db.AlarmTable
 import com.fedjaz.wakeupalarm.db.QRTable
+import com.orm.SugarContext
 import com.orm.SugarRecord
 
 
-class DataAccessLayer {
+class DataAccessLayer(context: Context) {
+
+    init {
+        SugarContext.init(context)
+    }
+
     fun getAllAlarms(): ArrayList<Alarm>{
         val alarmRecords = SugarRecord.listAll(AlarmTable::class.java)
         val alarms = arrayListOf<Alarm>()
@@ -22,6 +29,19 @@ class DataAccessLayer {
         }
 
         return alarms
+    }
+
+    fun getAlarmById(id: Int): Alarm{
+        val alarmRecord = SugarRecord.findById(AlarmTable::class.java, id)
+        val alarm = Alarm(alarmRecord.id.toInt(), alarmRecord.hour, alarmRecord.minute, alarmRecord.enabled, arrayListOf<Boolean>())
+        for(day in alarmRecord.days){
+            alarm.days.add(day.compareTo(0) != 0)
+        }
+        val alarmQrRelations = SugarRecord.find(AlarmQrRelationTable::class.java, "ALARM_ID = ?", alarm.id.toString())
+        for(alarmQrRelation in alarmQrRelations){
+            alarm.qrIds.add(alarmQrRelation.qrId)
+        }
+        return alarm
     }
 
     fun createAlarm(alarm: Alarm): Int{
@@ -55,6 +75,7 @@ class DataAccessLayer {
         val alarmRecord = SugarRecord.findById(AlarmTable::class.java, alarm.id)
         alarmRecord.hour = alarm.hour
         alarmRecord.minute = alarm.minute
+        alarm.days = arrayListOf()
         for(day in alarm.days){
             val byte: Byte = if(day){
                 0x1
@@ -100,6 +121,20 @@ class DataAccessLayer {
         val qrs = arrayListOf<QR>()
 
         for(qrRecord in qrRecords){
+            val qr = QR(qrRecord.id.toInt(), qrRecord.name, qrRecord.number, qrRecord.location)
+            qr.imageByteArray = qrRecord.image
+            qr.initializeImage()
+            qr.isImageCreated = true
+            qrs.add(qr)
+        }
+        return qrs
+    }
+
+    fun getQrsForAlarm(alarm: Alarm): ArrayList<QR>{
+        val qrs = arrayListOf<QR>()
+        val relations = SugarRecord.find(AlarmQrRelationTable::class.java, "ALARM_ID = ?", alarm.id.toString())
+        for(relation in relations){
+            val qrRecord = SugarRecord.findById(QRTable::class.java, relation.qrId)
             val qr = QR(qrRecord.id.toInt(), qrRecord.name, qrRecord.number, qrRecord.location)
             qr.imageByteArray = qrRecord.image
             qr.initializeImage()

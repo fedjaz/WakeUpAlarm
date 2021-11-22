@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/dismissButton"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/add_button_background_red"
+            android:backgroundTint="@color/red"
+            android:freezesText="false"
+            android:text="DISMISS"
+            android:textColor="@color/white"
+            android:textSize="30dp"
+            android:visibility="visible"
+            app:iconPadding="0dp"
+            app:iconSize="80dp"
+            app:iconTint="@color/black"
+            app:iconTintMode="src_in"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/scanButton" />
+
+        <ImageView
+            android:id="@+id/alarmAnimationView"
+            android:layout_width="223dp"
+            android:layout_height="276dp"
+            android:tint="@color/blue_app"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@mipmap/alarm_foreground" />
+
+        <TextView
+            android:id="@+id/alarmTriggerInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:text="You need to scan the followng QR codes to dismiss alarm:"
+            android:textColor="@color/black"
+            android:textSize="25dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dismissButton" />
+
+        <FrameLayout
+            android:id="@+id/qrsLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/alarmTriggerInfo">
+
+        </FrameLayout>
+
+        <Button
+            android:id="@+id/scanButton"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/save_button_background"
+            android:freezesText="false"
+            android:text="SCAN"
+            android:textColor="@color/white"
+            android:textSize="30dp"
+            app:icon="@mipmap/qr_foreground"
+            app:iconPadding="0dp"
+            app:iconSize="80dp"
+            app:iconTint="@color/white"
+            app:iconTintMode="src_in"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/alarmAnimationView" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

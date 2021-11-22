@@ -73,11 +73,10 @@ class AlarmCreate : AppCompatActivity() {
 
         }
 
-        val qrsFragment = QRFragment.newInstance(1, qrs)
+        val qrsFragment = QRFragment.newInstance(qrs, false)
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.qrLayout, qrsFragment, "tag")
         transaction.commit()
-
 
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
             if(checkedId == R.id.selectedDaysRadioButton){

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -37,8 +38,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        SugarContext.init(this)
-        dataAccessLayer = DataAccessLayer()
+        dataAccessLayer = DataAccessLayer(this)
 
         qrs = dataAccessLayer!!.getAllQrs()
         alarms = dataAccessLayer!!.getAllAlarms()
@@ -107,7 +107,12 @@ class MainActivity : AppCompatActivity() {
                 fragment.show(supportFragmentManager, "tag")
             }
             else{
-                activityLauncher.launch(Pair(qrs, null))
+                if(qrs.size == 0){
+                    Toast.makeText(this, "You should first add some QR codes in the second tab", Toast.LENGTH_LONG).show()
+                }
+                else{
+                    activityLauncher.launch(Pair(qrs, null))
+                }
             }
         }
 
@@ -124,7 +129,6 @@ class MainActivity : AppCompatActivity() {
                 (sectionsPagerAdapter?.qrsFragment?.view as RecyclerView).adapter?.notifyItemChanged(position)
             }
             fragment.show(supportFragmentManager, "tag")
-
         }
 
         sectionsPagerAdapter?.qrsFragment?.onItemSelected = { id, isChecked ->
@@ -139,10 +143,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         sectionsPagerAdapter?.alarmsFragment?.onItemClick = {_, alarm ->
+            val scheduler = AlarmScheduler(this)
+            scheduler.cancel(alarm)
             activityLauncher.launch(Pair(qrs, alarm))
         }
 
         sectionsPagerAdapter?.alarmsFragment?.onItemEnabled = { position, enabled ->
+            val scheduler = AlarmScheduler(this)
+            if(enabled){
+                scheduler.schedule(alarms[position])
+            }
+            else{
+                scheduler.cancel(alarms[position])
+            }
+
             alarms[position].enabled = enabled
             dataAccessLayer!!.enableAlarm(alarms[position])
         }
@@ -186,8 +200,10 @@ class MainActivity : AppCompatActivity() {
         deleteButton.setOnClickListener {
             if(tabs.selectedTabPosition == 0){
                 val alarmsToDelete = arrayListOf<Alarm>()
+                val scheduler = AlarmScheduler(this)
                 for(alarm in alarms){
                     if(alarm.id in selectedAlarms){
+                        scheduler.cancel(alarm)
                         alarmsToDelete.add(alarm)
                         dataAccessLayer!!.deleteAlarm(alarm)
                     }
@@ -221,9 +237,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addNewAlarmFromActivity(alarm: Alarm){
+        val scheduler = AlarmScheduler(this)
         if(alarm.id == -1){
             alarm.id = dataAccessLayer!!.createAlarm(alarm)
             alarms.add(alarm)
+            scheduler.schedule(alarm)
             (sectionsPagerAdapter?.alarmsFragment?.view as RecyclerView).adapter?.notifyItemInserted(alarms.size - 1)
         }
         else{
@@ -232,6 +250,9 @@ class MainActivity : AppCompatActivity() {
                 if(alarms[i].id == alarm.id){
                     alarms[i] = alarm
                 }
+            }
+            if(alarm.enabled){
+                scheduler.schedule(alarm)
             }
             (sectionsPagerAdapter?.alarmsFragment?.view as RecyclerView).adapter?.notifyDataSetChanged()
         }
