@@ -127,11 +127,11 @@ class AlarmCreate : AppCompatActivity() {
                 val saturday = findViewById<CheckBox>(R.id.saturdayCheckBox)
                 val sunday = findViewById<CheckBox>(R.id.sundayCheckBox)
                 val daysBoxes = listOf(monday, tuesday, wednesday, thursday, friday, saturday, sunday)
-                val days = once
+                val daysValues = once
                 for(i in 0..6){
-                    days[i] = daysBoxes[i].isChecked
+                    daysValues[i] = daysBoxes[i].isChecked
                 }
-                days
+                daysValues
             }
         }
         val returnAlarm = if(editAlarm != null){

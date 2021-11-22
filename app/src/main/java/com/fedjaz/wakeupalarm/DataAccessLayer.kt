@@ -75,7 +75,7 @@ class DataAccessLayer(context: Context) {
         val alarmRecord = SugarRecord.findById(AlarmTable::class.java, alarm.id)
         alarmRecord.hour = alarm.hour
         alarmRecord.minute = alarm.minute
-        alarm.days = arrayListOf()
+        alarmRecord.days = byteArrayOf()
         for(day in alarm.days){
             val byte: Byte = if(day){
                 0x1
