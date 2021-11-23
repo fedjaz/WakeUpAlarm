@@ -18,6 +18,7 @@ import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.orm.SugarContext
 import java.io.File
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -173,7 +174,8 @@ class MainActivity : AppCompatActivity() {
         sectionsPagerAdapter?.alarmsFragment?.onItemEnabled = { position, enabled ->
             val scheduler = AlarmScheduler(this)
             if(enabled){
-                scheduler.schedule(alarms[position])
+                val time = scheduler.schedule(alarms[position])
+                displayTime(time)
             }
             else{
                 scheduler.cancel(alarms[position])
@@ -263,7 +265,8 @@ class MainActivity : AppCompatActivity() {
         if(alarm.id == -1){
             alarm.id = dataAccessLayer!!.createAlarm(alarm)
             alarms.add(alarm)
-            scheduler.schedule(alarm)
+            val time = scheduler.schedule(alarm)
+            displayTime(time)
             (sectionsPagerAdapter?.alarmsFragment?.view as RecyclerView).adapter?.notifyItemInserted(alarms.size - 1)
         }
         else{
@@ -274,7 +277,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             if(alarm.enabled){
-                scheduler.schedule(alarm)
+                val time = scheduler.schedule(alarm)
+                displayTime(time)
             }
             (sectionsPagerAdapter?.alarmsFragment?.view as RecyclerView).adapter?.notifyDataSetChanged()
         }
@@ -302,5 +306,39 @@ class MainActivity : AppCompatActivity() {
                 printButton.visibility = GONE
             }
         }
+    }
+
+    private fun displayTime(timeDiff: Long){
+        val days: Int = (timeDiff / (24 * 60 * 60 * 1000)).toInt()
+        val hours = timeDiff % (24 * 60 * 60 * 1000) / (60 * 60 * 1000)
+        val minutes = timeDiff % (60 * 60 * 1000) / (60 * 1000)
+
+        val displayData = arrayListOf<String>()
+        if(days > 0){
+            displayData.add("$days d")
+        }
+        if(hours > 0){
+            displayData.add("$hours h")
+        }
+        if(minutes > 0){
+            displayData.add("$minutes m")
+        }
+
+        var displayString = "The alarm will trigger in "
+        if(displayData.size == 0){
+            displayString += "less than a minute"
+        }
+        else{
+            for(i in 0 until displayData.size){
+                displayString += if(displayData.size - i > 2){
+                    displayData[i] + ", "
+                } else if(displayData.size - i > 1){
+                    displayData[i] + " and "
+                } else{
+                    displayData[i]
+                }
+            }
+        }
+        Toast.makeText(applicationContext, displayString, Toast.LENGTH_SHORT).show()
     }
 }
