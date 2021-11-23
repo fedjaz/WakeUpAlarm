@@ -12,20 +12,33 @@ import android.os.Vibrator
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.*
 import java.io.Serializable
+import kotlin.coroutines.CoroutineContext
 
 
 class AlarmService: Service() {
     private var mediaPlayer: MediaPlayer? = null
     private var vibrator: Vibrator? = null
+    private var audioManager: AudioManager? = null
+    private var startVolume: Int = 0
+    private var volumeJob: Job? = null
 
     override fun onCreate() {
         mediaPlayer = MediaPlayer.create(this, R.raw.alarmsound)
         mediaPlayer?.isLooping = true
-        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0)
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        startVolume = audioManager!!.getStreamVolume(AudioManager.STREAM_MUSIC)
+        audioManager!!.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager!!.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0)
 
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
+        volumeJob = CoroutineScope(Dispatchers.Main).launch {
+            while(true){
+                audioManager!!.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager!!.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0)
+                delay(100L)
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -52,6 +65,9 @@ class AlarmService: Service() {
     }
 
     override fun onDestroy() {
+        volumeJob?.cancel()
+
+        audioManager!!.setStreamVolume(AudioManager.STREAM_MUSIC, startVolume, 0)
         mediaPlayer?.stop()
         vibrator?.cancel()
     }

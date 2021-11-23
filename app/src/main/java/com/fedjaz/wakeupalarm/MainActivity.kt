@@ -1,6 +1,9 @@
 package com.fedjaz.wakeupalarm
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.View.GONE
@@ -34,9 +37,28 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private val broadcastReceiver = object : BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val alarmId = intent?.extras?.getInt("alarmId", -1)
+            if(alarmId != -1){
+                for(alarm in alarms){
+                    if(alarm.id == alarmId){
+                        alarm.enabled = false
+                        break
+                    }
+                }
+                (sectionsPagerAdapter?.alarmsFragment?.view as RecyclerView).adapter?.notifyDataSetChanged()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val intentFilter = IntentFilter()
+        intentFilter.addAction("com.fedjaz.wakeupalarm.MainActivity.action")
+        registerReceiver(broadcastReceiver, intentFilter)
 
         dataAccessLayer = DataAccessLayer(this)
 

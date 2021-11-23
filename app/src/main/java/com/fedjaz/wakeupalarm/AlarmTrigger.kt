@@ -44,7 +44,14 @@ class AlarmTrigger : AppCompatActivity() {
         dismissButton.setOnClickListener {
             val intentService = Intent(applicationContext, AlarmService::class.java)
             applicationContext.stopService(intentService)
-            exitProcess(0)
+            val local = Intent()
+            if(alarm.isOneTime){
+                local.putExtra("alarmId", alarmId)
+            }
+            local.action = "com.fedjaz.wakeupalarm.MainActivity.action"
+            sendBroadcast(local)
+
+            finishAndRemoveTask()
         }
 
         scanButton.setOnClickListener {
@@ -66,7 +73,6 @@ class AlarmTrigger : AppCompatActivity() {
             scanButton.visibility = GONE
             qrsLayout.visibility = GONE
             infoText.visibility = GONE
-
         }
     }
 
