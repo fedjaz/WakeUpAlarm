@@ -18,8 +18,10 @@ import kotlin.system.exitProcess
 class AlarmTrigger : AppCompatActivity() {
     private var qrs = arrayListOf<QR>()
     private val leftQrIds = arrayListOf<Int>()
+    private val strictQrNumbers = arrayListOf<Int>()
     private val scannedQrIds = arrayListOf<Int>()
     private var qrsFragment: QRFragment? = null
+    private var alarm: Alarm? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,12 +32,22 @@ class AlarmTrigger : AppCompatActivity() {
         val dataAccessLayer = DataAccessLayer(this)
 
         val alarmId = intent.extras?.getInt("alarmId")!!
-        val alarm = dataAccessLayer.getAlarmById(alarmId)
+        alarm = dataAccessLayer.getAlarmById(alarmId)
 
-        qrs = dataAccessLayer.getQrsForAlarm(alarm)
+        qrs = dataAccessLayer.getQrsForAlarm(alarm!!)
 
         for(qr in qrs){
             leftQrIds.add(qr.id)
+        }
+        val infoText = findViewById<TextView>(R.id.alarmTriggerInfo)
+
+        if(alarm!!.isStrict){
+            infoText.text = resources.getString(R.string.alarm_trigger_info_strict)
+            qrs.sortBy { QR -> QR.number }
+            for(qr in qrs){
+                strictQrNumbers.add(qr.number)
+            }
+            strictQrNumbers.sort()
         }
 
         val dismissButton = findViewById<Button>(R.id.dismissButton)
@@ -45,7 +57,7 @@ class AlarmTrigger : AppCompatActivity() {
             val intentService = Intent(applicationContext, AlarmService::class.java)
             applicationContext.stopService(intentService)
             val local = Intent()
-            if(alarm.isOneTime){
+            if(alarm!!.isOneTime){
                 local.putExtra("alarmId", alarmId)
             }
             local.action = "com.fedjaz.wakeupalarm.MainActivity.action"
@@ -68,7 +80,6 @@ class AlarmTrigger : AppCompatActivity() {
         }
         else{
             dismissButton.visibility = VISIBLE
-            val infoText = findViewById<TextView>(R.id.alarmTriggerInfo)
             val qrsLayout = findViewById<FrameLayout>(R.id.qrsLayout)
             scanButton.visibility = GONE
             qrsLayout.visibility = GONE
@@ -93,17 +104,38 @@ class AlarmTrigger : AppCompatActivity() {
             try{
                 val map = gson.fromJson(intentResult.contents, Map::class.java)
                 val id = map["id"].toString().toDouble().toInt()
+                var matchingQr: QR? = null
+                for(qr in qrs){
+                    if(qr.id == id){
+                        matchingQr = qr
+                    }
+                }
+                if(matchingQr == null){
+                    Toast.makeText(this, "This QR is not in this alarm!", Toast.LENGTH_LONG).show()
+                    return
+                }
+
                 when (id) {
                     in leftQrIds -> {
-                        leftQrIds.remove(id)
-                        scannedQrIds.add(id)
-                        changeCheckBoxes(id)
+                        if(alarm!!.isStrict){
+                            if(strictQrNumbers[0] == matchingQr.number){
+                                strictQrNumbers.removeAt(0)
+                                leftQrIds.remove(id)
+                                scannedQrIds.add(id)
+                                changeCheckBoxes(id)
+                            }
+                            else{
+                                Toast.makeText(this, "You should first scan QR's with number ${strictQrNumbers[0]}", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        else{
+                            leftQrIds.remove(id)
+                            scannedQrIds.add(id)
+                            changeCheckBoxes(id)
+                        }
                     }
                     in scannedQrIds -> {
                         Toast.makeText(this, "You already scanned this QR", Toast.LENGTH_LONG).show()
-                    }
-                    else -> {
-                        Toast.makeText(this, "This QR is not in this alarm!", Toast.LENGTH_LONG).show()
                     }
                 }
             }

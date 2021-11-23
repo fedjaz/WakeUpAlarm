@@ -30,6 +30,7 @@ class AlarmCreate : AppCompatActivity() {
 
         val radioGroup = findViewById<RadioGroup>(R.id.repeatRadioGroup)
         val daysLayout = findViewById<ConstraintLayout>(R.id.daysLayout)
+        val strictCheckBox = findViewById<CheckBox>(R.id.strictCheckBox)
 
         if(editAlarm != null){
             timePicker.hour = editAlarm.hour
@@ -70,7 +71,7 @@ class AlarmCreate : AppCompatActivity() {
                     }
                 }
             }
-
+            strictCheckBox.isChecked = editAlarm.isStrict
         }
 
         val qrsFragment = QRFragment.newInstance(qrs, false)
@@ -97,10 +98,12 @@ class AlarmCreate : AppCompatActivity() {
     private fun saveAndExit(editAlarm: Alarm?){
         val timePicker = findViewById<TimePicker>(R.id.alarmTimePicker)
         val radioGroup = findViewById<RadioGroup>(R.id.repeatRadioGroup)
+        val strictCheckBox = findViewById<CheckBox>(R.id.strictCheckBox)
 
         val hour = timePicker.hour
         val minute = timePicker.minute
 
+        val isStrict = strictCheckBox.isChecked
         val checkedQrs = arrayListOf<Int>()
         for(qr in qrs){
             if(qr.checked){
@@ -139,10 +142,11 @@ class AlarmCreate : AppCompatActivity() {
             editAlarm.minute = minute
             editAlarm.qrIds = checkedQrs
             editAlarm.days = days
+            editAlarm.isStrict = isStrict
             editAlarm
         }
         else{
-            val alarm = Alarm(-1, hour, minute, true, days)
+            val alarm = Alarm(-1, hour, minute, true, days, isStrict)
             alarm.qrIds = checkedQrs
             alarm
         }

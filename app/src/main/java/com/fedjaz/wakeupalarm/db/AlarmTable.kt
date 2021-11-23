@@ -7,4 +7,5 @@ class AlarmTable : SugarRecord() {
     var minute = 0
     var days = byteArrayOf()
     var enabled = false
+    var isStrict = false
 }

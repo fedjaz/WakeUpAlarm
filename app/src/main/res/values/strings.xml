@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name" translatable="false">Wake Up Alarm</string>
+    <string name="alarm_trigger_info_strict">You need to scan the following QR codes to dismiss alarm (in the following order):</string>
+    <string name="alarm_trigger_info_unstrict">You need to scan the following QR codes to dismiss alarm (in any order):</string>
 </resources>

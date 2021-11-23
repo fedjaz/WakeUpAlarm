@@ -17,7 +17,7 @@ class DataAccessLayer(context: Context) {
         val alarmRecords = SugarRecord.listAll(AlarmTable::class.java)
         val alarms = arrayListOf<Alarm>()
         for(alarmRecord in alarmRecords){
-            val alarm = Alarm(alarmRecord.id.toInt(), alarmRecord.hour, alarmRecord.minute, alarmRecord.enabled, arrayListOf<Boolean>())
+            val alarm = Alarm(alarmRecord.id.toInt(), alarmRecord.hour, alarmRecord.minute, alarmRecord.enabled, arrayListOf<Boolean>(), alarmRecord.isStrict)
             for(day in alarmRecord.days){
                 alarm.days.add(day.compareTo(0) != 0)
             }
@@ -33,7 +33,7 @@ class DataAccessLayer(context: Context) {
 
     fun getAlarmById(id: Int): Alarm{
         val alarmRecord = SugarRecord.findById(AlarmTable::class.java, id)
-        val alarm = Alarm(alarmRecord.id.toInt(), alarmRecord.hour, alarmRecord.minute, alarmRecord.enabled, arrayListOf<Boolean>())
+        val alarm = Alarm(alarmRecord.id.toInt(), alarmRecord.hour, alarmRecord.minute, alarmRecord.enabled, arrayListOf<Boolean>(), alarmRecord.isStrict)
         for(day in alarmRecord.days){
             alarm.days.add(day.compareTo(0) != 0)
         }
@@ -59,6 +59,7 @@ class DataAccessLayer(context: Context) {
         }
 
         alarmRecord.enabled = alarm.enabled
+        alarmRecord.isStrict = alarm.isStrict
         val id = alarmRecord.save().toInt()
 
         for(qrId in alarm.qrIds){
@@ -86,6 +87,7 @@ class DataAccessLayer(context: Context) {
             alarmRecord.days += byte
         }
         alarmRecord.enabled = alarm.enabled
+        alarmRecord.isStrict = alarm.isStrict
 
         val alarmQrRelations = SugarRecord.find(AlarmQrRelationTable::class.java, "ALARM_ID = ?", alarm.id.toString())
         for(alarmQrRelation in alarmQrRelations){

@@ -3,7 +3,7 @@ package com.fedjaz.wakeupalarm
 import java.io.Serializable
 import java.sql.Time
 
-class Alarm(var id: Int = -1, var hour: Int = 0, var minute: Int = 0, var enabled: Boolean = false, var days: ArrayList<Boolean>) : Serializable {
+class Alarm(var id: Int = -1, var hour: Int = 0, var minute: Int = 0, var enabled: Boolean = false, var days: ArrayList<Boolean>, var isStrict: Boolean = false) : Serializable {
     private val daysPattern = listOf("Mo", "Tu", "We", "Th", "Fr", "Sa", "Su")
     var checked = false
     var qrIds = arrayListOf<Int>()

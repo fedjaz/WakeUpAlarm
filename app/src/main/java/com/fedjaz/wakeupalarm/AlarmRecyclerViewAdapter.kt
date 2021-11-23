@@ -29,10 +29,9 @@ class AlarmRecyclerViewAdapter(
         val item = values[position]
         holder.dateView.text = item.getDaysString()
         holder.timeDisplay.text = item.getTimeString()
-        holder.enabledSwitch.isChecked = item.enabled
-
         disableEvents = true
-        holder.alarmCheckBox.isChecked = values[position].checked
+        holder.enabledSwitch.isChecked = item.enabled
+        holder.alarmCheckBox.isChecked = item.checked
         disableEvents = false
     }
 
@@ -47,7 +46,9 @@ class AlarmRecyclerViewAdapter(
         init {
             val switch = view.findViewById<SwitchCompat>(R.id.alarmSwitch)
             switch.setOnCheckedChangeListener { _, isChecked ->
-                onItemEnabled?.invoke(adapterPosition, isChecked)
+                if(!disableEvents) {
+                    onItemEnabled?.invoke(adapterPosition, isChecked)
+                }
             }
             view.setOnClickListener {
                 onItemClick?.invoke(adapterPosition, values[adapterPosition])
@@ -57,10 +58,6 @@ class AlarmRecyclerViewAdapter(
                     onItemSelected?.invoke(values[adapterPosition].id, isChecked)
                 }
             }
-        }
-
-        override fun toString(): String {
-            return "qq"
         }
     }
 }

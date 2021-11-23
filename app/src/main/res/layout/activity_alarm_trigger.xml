@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:text="You need to scan the followng QR codes to dismiss alarm:"
+            android:text="@string/alarm_trigger_info_unstrict"
             android:textColor="@color/black"
             android:textSize="25dp"
             app:layout_constraintEnd_toEndOf="parent"
