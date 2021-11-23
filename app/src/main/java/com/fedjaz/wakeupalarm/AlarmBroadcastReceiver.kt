@@ -22,6 +22,14 @@ class AlarmBroadcastReceiver: BroadcastReceiver(){
         else{
             val alarmId: Int = intent?.extras?.getInt("alarmId")!!
             val alarm = dataAccessLayer.getAlarmById(alarmId)
+            if(!alarm.isOneTime){
+                scheduler.schedule(alarm)
+            }
+            else{
+                alarm.enabled = false
+                dataAccessLayer.enableAlarm(alarm)
+            }
+
             if(alarmIsToday(alarm)){
                 startService(context, alarm)
             }

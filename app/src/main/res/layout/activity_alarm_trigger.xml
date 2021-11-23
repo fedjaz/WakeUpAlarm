@@ -11,15 +11,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <Button
+        <android.widget.Button
             android:id="@+id/dismissButton"
-            style="@style/Widget.AppCompat.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:background="@drawable/add_button_background_red"
             android:backgroundTint="@color/red"
             android:freezesText="false"
+            android:paddingStart="50dp"
+            android:paddingTop="15dp"
+            android:paddingEnd="50dp"
+            android:paddingBottom="15dp"
             android:text="DISMISS"
             android:textColor="@color/white"
             android:textSize="30dp"

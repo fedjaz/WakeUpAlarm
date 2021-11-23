@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.IBinder
@@ -21,6 +22,8 @@ class AlarmService: Service() {
     override fun onCreate() {
         mediaPlayer = MediaPlayer.create(this, R.raw.alarmsound)
         mediaPlayer?.isLooping = true
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0)
 
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     }
@@ -35,7 +38,7 @@ class AlarmService: Service() {
 
         val notification = NotificationCompat.Builder(this, "ALARM_SERVICE_CHANNEL")
             .setContentText("It's time to wake up and scan some codes!")
-            .setSmallIcon(R.mipmap.alarm)
+            .setSmallIcon(R.mipmap.alarm_foreground)
             .setContentIntent(pendingIntent)
             .build()
 

@@ -3,6 +3,7 @@ package com.fedjaz.wakeupalarm
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.GsonBuilder
 import com.google.zxing.integration.android.IntentIntegrator
+import kotlin.system.exitProcess
 
 
 class AlarmTrigger : AppCompatActivity() {
@@ -42,7 +44,7 @@ class AlarmTrigger : AppCompatActivity() {
         dismissButton.setOnClickListener {
             val intentService = Intent(applicationContext, AlarmService::class.java)
             applicationContext.stopService(intentService)
-            finish()
+            exitProcess(0)
         }
 
         scanButton.setOnClickListener {
