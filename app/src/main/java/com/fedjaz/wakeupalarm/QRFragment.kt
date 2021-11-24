@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 
 
-class QRFragment(var QRs: ArrayList<QR>, val isViewOnly: Boolean) : Fragment() {
+class QRFragment(var QRs: ArrayList<QR>, val isViewOnly: Boolean, val padding: Boolean = true) : Fragment() {
 
     private var columnCount = 1
 
@@ -45,6 +45,10 @@ class QRFragment(var QRs: ArrayList<QR>, val isViewOnly: Boolean) : Fragment() {
                 (adapter as QRRecyclerViewAdapter).onItemSelected = { position, isChecked ->
                     onItemSelected?.invoke(position, isChecked)
                 }
+
+                if(!padding){
+                    view.setPadding(0, 0, 0, 0)
+                }
             }
         }
         return view
@@ -57,8 +61,8 @@ class QRFragment(var QRs: ArrayList<QR>, val isViewOnly: Boolean) : Fragment() {
 
         // TODO: Customize parameter initialization
         @JvmStatic
-        fun newInstance(QRs: ArrayList<QR>, isViewOnly: Boolean) =
-                QRFragment(QRs, isViewOnly).apply {
+        fun newInstance(QRs: ArrayList<QR>, isViewOnly: Boolean, padding: Boolean = true) =
+                QRFragment(QRs, isViewOnly, padding).apply {
                     arguments = Bundle().apply {
                         putInt(ARG_COLUMN_COUNT, columnCount)
                     }

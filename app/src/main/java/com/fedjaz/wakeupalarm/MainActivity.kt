@@ -260,6 +260,43 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        val tabs = findViewById<TabLayout>(R.id.tabs)
+
+        if(tabs.selectedTabPosition == 0){
+            if(selectedAlarms.size > 0){
+                for(i in 0 until alarms.size){
+                    val alarm = alarms[i]
+                    if(alarm.id in selectedAlarms){
+                        alarm.checked = false
+                        (sectionsPagerAdapter?.alarmsFragment?.view as RecyclerView).adapter?.notifyItemChanged(i)
+                    }
+                }
+                selectedAlarms = arrayListOf()
+                enableButtons(tabs)
+            }
+            else{
+                finish()
+            }
+        }
+        else{
+            if(selectedQrs.size > 0){
+                for(i in 0 until qrs.size){
+                    val qr = qrs[i]
+                    if(qr.id in selectedQrs){
+                        qr.checked = false
+                        (sectionsPagerAdapter?.qrsFragment?.view as RecyclerView).adapter?.notifyItemChanged(i)
+                    }
+                }
+                selectedQrs = arrayListOf()
+                enableButtons(tabs)
+            }
+            else{
+                finish()
+            }
+        }
+    }
+
     private fun addNewAlarmFromActivity(alarm: Alarm){
         val scheduler = AlarmScheduler(this)
         if(alarm.id == -1){
