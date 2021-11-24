@@ -52,7 +52,7 @@ class AlarmService: Service() {
 
         val notification = NotificationCompat.Builder(this, "ALARM_SERVICE_CHANNEL")
             .setContentText("It's time to wake up and scan some codes!")
-            .setSmallIcon(R.mipmap.alarm_foreground)
+            .setSmallIcon(R.mipmap.alarm_white_foreground)
             .setContentIntent(pendingIntent)
             .build()
 
