@@ -71,7 +71,7 @@ class AlarmTrigger : AppCompatActivity() {
         }
 
         if(qrs.size > 0){
-            qrsFragment = QRFragment.newInstance(qrs, true)
+            qrsFragment = QRFragment.newInstance(qrs, true, false)
             val transaction = supportFragmentManager.beginTransaction()
             transaction.replace(R.id.qrsLayout, qrsFragment!!, "tag")
             transaction.commit()

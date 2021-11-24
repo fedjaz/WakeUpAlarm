@@ -74,7 +74,7 @@ class AlarmCreate : AppCompatActivity() {
             strictCheckBox.isChecked = editAlarm.isStrict
         }
 
-        val qrsFragment = QRFragment.newInstance(qrs, false)
+        val qrsFragment = QRFragment.newInstance(qrs, false, false)
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.qrLayout, qrsFragment, "tag")
         transaction.commit()
