@@ -8,8 +8,6 @@ import android.widget.Button
 import android.widget.EditText
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "qr"
 
 class QrSheetFragment : BottomSheetDialogFragment() {
@@ -40,8 +38,19 @@ class QrSheetFragment : BottomSheetDialogFragment() {
             numberEditText.setText(editQr!!.number.toString())
             view.findViewById<Button>(R.id.saveQrButton).setOnClickListener {
                 editQr!!.name = nameEditText.text.toString()
+                if(editQr!!.name.isBlank()){
+                    editQr!!.name = "Name"
+                }
                 editQr!!.location = locationEditText.text.toString()
-                editQr!!.number = numberEditText.text.toString().toInt()
+                if(editQr!!.location.isEmpty()){
+                    editQr!!.location = "Location"
+                }
+
+                var number = numberEditText.text.toString().toIntOrNull()
+                if(number == null){
+                    number = 1
+                }
+                editQr!!.number = number
 
                 edited?.invoke(editQr!!)
                 dismiss()
@@ -49,9 +58,18 @@ class QrSheetFragment : BottomSheetDialogFragment() {
         }
         else{
             view.findViewById<Button>(R.id.saveQrButton).setOnClickListener {
-                val newName = nameEditText.text.toString()
-                val newLocation = locationEditText.text.toString()
-                val newNumber = numberEditText.text.toString().toInt()
+                var newName = nameEditText.text.toString()
+                if(newName.isBlank()){
+                    newName = "Name"
+                }
+                var newLocation = locationEditText.text.toString()
+                if(newLocation.isBlank()){
+                    newLocation = "Location"
+                }
+                var newNumber = numberEditText.text.toString().toIntOrNull()
+                if(newNumber == null){
+                    newNumber = 1
+                }
                 val newQr = QR(-1, newName, newNumber, newLocation)
 
                 created?.invoke(newQr)
