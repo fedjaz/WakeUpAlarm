@@ -166,13 +166,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         sectionsPagerAdapter?.alarmsFragment?.onItemClick = {_, alarm ->
-            val scheduler = AlarmScheduler(this)
+            val scheduler = AlarmScheduler(this, dataAccessLayer!!)
             scheduler.cancel(alarm)
             activityLauncher.launch(Pair(qrs, alarm))
         }
 
         sectionsPagerAdapter?.alarmsFragment?.onItemEnabled = { position, enabled ->
-            val scheduler = AlarmScheduler(this)
+            val scheduler = AlarmScheduler(this, dataAccessLayer!!)
             if(enabled){
                 val time = scheduler.schedule(alarms[position])
                 displayTime(time)
@@ -224,7 +224,7 @@ class MainActivity : AppCompatActivity() {
         deleteButton.setOnClickListener {
             if(tabs.selectedTabPosition == 0){
                 val alarmsToDelete = arrayListOf<Alarm>()
-                val scheduler = AlarmScheduler(this)
+                val scheduler = AlarmScheduler(this, dataAccessLayer!!)
                 for(alarm in alarms){
                     if(alarm.id in selectedAlarms){
                         scheduler.cancel(alarm)
@@ -298,7 +298,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addNewAlarmFromActivity(alarm: Alarm){
-        val scheduler = AlarmScheduler(this)
+        val scheduler = AlarmScheduler(this, dataAccessLayer!!)
         if(alarm.id == -1){
             alarm.id = dataAccessLayer!!.createAlarm(alarm)
             alarms.add(alarm)

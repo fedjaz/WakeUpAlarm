@@ -1,5 +1,6 @@
 package com.fedjaz.wakeupalarm
 import android.content.Context
+import com.fedjaz.wakeupalarm.db.AlarmEventTable
 import com.fedjaz.wakeupalarm.db.AlarmQrRelationTable
 import com.fedjaz.wakeupalarm.db.AlarmTable
 import com.fedjaz.wakeupalarm.db.QRTable
@@ -42,6 +43,13 @@ class DataAccessLayer(context: Context) {
             alarm.qrIds.add(alarmQrRelation.qrId)
         }
         return alarm
+    }
+
+    fun getMatchingAlarms(hour: Int, minute: Int): ArrayList<Alarm>{
+        var alarms = getAllAlarms()
+
+        alarms = ArrayList(alarms.filter { alarm -> alarm.hour == hour && alarm.minute == minute })
+        return alarms
     }
 
     fun createAlarm(alarm: Alarm): Int{
@@ -172,4 +180,63 @@ class DataAccessLayer(context: Context) {
         }
     }
 
+    fun clearEvents(){
+        val eventRecords = SugarRecord.listAll(AlarmEventTable::class.java)
+        for(eventRecord in eventRecords){
+            eventRecord.delete()
+        }
+    }
+
+    fun getEventId(hour: Int, minute: Int): Int{
+        val alarmEventRecords = SugarRecord.find(AlarmEventTable::class.java, "HOUR = ? AND MINUTE = ?", hour.toString(), minute.toString())
+
+        return if(alarmEventRecords != null && alarmEventRecords.isNotEmpty()){
+            alarmEventRecords[0].id.toInt()
+        } else{
+            -1
+        }
+    }
+
+    fun createOrIncrementEvent(hour: Int, minute: Int) : Int{
+        val alarmEventRecords = SugarRecord.find(AlarmEventTable::class.java, "HOUR = ? AND MINUTE = ?", hour.toString(), minute.toString())
+        val alarmEventRecord: AlarmEventTable?
+        return if(alarmEventRecords != null && alarmEventRecords.isNotEmpty()){
+            alarmEventRecord = alarmEventRecords[0]
+            alarmEventRecord.alarmsCount++
+            alarmEventRecord!!.save()
+
+            -1
+        }
+        else{
+            alarmEventRecord = AlarmEventTable()
+            alarmEventRecord.hour = hour
+            alarmEventRecord.minute = minute
+            alarmEventRecord.alarmsCount = 1
+            alarmEventRecord.save()
+
+            alarmEventRecord.id.toInt()
+        }
+    }
+
+    fun deleteOrDecrementEvent(hour: Int, minute: Int) : Int{
+        val alarmEventRecords = SugarRecord.find(AlarmEventTable::class.java, "HOUR = ? AND MINUTE = ?", hour.toString(), minute.toString())
+        val alarmEventRecord: AlarmEventTable?
+        if(alarmEventRecords != null && alarmEventRecords.isNotEmpty()){
+            alarmEventRecord = alarmEventRecords[0]
+
+            return if(alarmEventRecord.alarmsCount > 1){
+                alarmEventRecord.alarmsCount--
+                alarmEventRecord.save()
+
+                -1
+            } else{
+                val id = alarmEventRecord.id.toInt()
+                alarmEventRecord.delete()
+
+                id
+            }
+        }
+
+        return -1
+    }
 }

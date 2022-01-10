@@ -3,16 +3,17 @@ package com.fedjaz.wakeupalarm
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
-import android.widget.Toast
 import java.util.*
 
 class AlarmBroadcastReceiver: BroadcastReceiver(){
     override fun onReceive(context: Context?, intent: Intent?) {
         val dataAccessLayer = DataAccessLayer(context!!)
-        val scheduler = AlarmScheduler(context)
-        if(Intent.ACTION_BOOT_COMPLETED == intent?.action){
+        val scheduler = AlarmScheduler(context, dataAccessLayer)
+        val hour = intent?.extras?.getInt("hour")!!
+        val minute = intent.extras?.getInt("minute")!!
+        if(Intent.ACTION_BOOT_COMPLETED == intent.action){
             val alarms = dataAccessLayer.getAllAlarms()
+            dataAccessLayer.clearEvents()
             for(alarm in alarms){
                 if(alarm.enabled){
                     scheduler.schedule(alarm)
@@ -20,19 +21,29 @@ class AlarmBroadcastReceiver: BroadcastReceiver(){
             }
         }
         else{
-            val alarmId: Int = intent?.extras?.getInt("alarmId")!!
-            val alarm = dataAccessLayer.getAlarmById(alarmId)
+            val alarms = dataAccessLayer.getMatchingAlarms(hour, minute).filter { alarm ->  alarmIsToday(alarm) }
+            if(alarms.isEmpty()){
+                return
+            }
+
+            val oneTimeAlarms = alarms.filter { alarm ->  alarm.isOneTime}
+            val alarm =
+            if(oneTimeAlarms.isNotEmpty()){
+                oneTimeAlarms[0]
+            }
+            else{
+                alarms[0]
+            }
+
             if(!alarm.isOneTime){
-                scheduler.schedule(alarm)
+                scheduler.reschedule(alarm)
             }
             else{
                 alarm.enabled = false
                 dataAccessLayer.enableAlarm(alarm)
             }
 
-            if(alarmIsToday(alarm)){
-                startService(context, alarm)
-            }
+            startService(context, alarm)
         }
     }
 
